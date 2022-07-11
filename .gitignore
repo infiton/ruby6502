@@ -9,7 +9,16 @@
 /test/tmp/
 /test/version_tmp/
 /tmp/
-
+**/Makefile
+**/*.dSYM
+**/*.o
+**/*.bundle
+**/*.so
+**/*.a
+**/*.rbc
+**/mkmf.log
+vendor
+**/.DS_Store
 # Used by dotenv library to load environment variables.
 # .env
 
