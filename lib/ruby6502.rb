@@ -5,6 +5,26 @@ require "ruby6502/ruby6502"
 module Ruby6502
   MEMORY = [0] * 256 * 256
 
+  def self.load(bytearray, location: 0)
+    byte_size = bytearray.size
+    if MEMORY.size < location + byte_size
+      raise "Loading #{byte_size} bytes to #{format("%04x", location)} would overflow memory"
+    end
+
+    bytearray.each do |byte|
+      MEMORY[location] = byte
+      location += 1
+    end
+  end
+
+  def self.read(location:, bytes:)
+    if location >= MEMORY.size
+      raise "#{format("%04x", location)} is outside bounds"
+    end
+
+    return MEMORY[location ... location + bytes]
+  end
+
   def self.program_counter
     format("%04x", _program_counter)
   end
