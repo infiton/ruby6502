@@ -4,6 +4,7 @@ require "ruby6502/ruby6502"
 
 module Ruby6502
   MEMORY = [0] * 256 * 256
+  HOOKS = []
 
   def self.load(bytearray, location: 0)
     byte_size = bytearray.size
@@ -18,11 +19,18 @@ module Ruby6502
   end
 
   def self.read(location:, bytes:)
-    if location >= MEMORY.size
-      raise "#{format("%04x", location)} is outside bounds"
-    end
+    raise "#{format("%04x", location)} is outside bounds" if location >= MEMORY.size
 
-    return MEMORY[location ... location + bytes]
+    MEMORY[location...location + bytes]
+  end
+
+  def self.execute_hooks
+    HOOKS.each(&:call)
+  end
+
+  def self.register_hook(&hook)
+    set_hooks unless hooks?
+    HOOKS << hook
   end
 
   def self.program_counter

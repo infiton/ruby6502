@@ -3,6 +3,7 @@
 #include "fake6502.h"
 
 static VALUE mRuby6502;
+uint8_t has_hooks = 0;
 
 static VALUE program_counter(VALUE self)
 {
@@ -73,6 +74,33 @@ void write6502(uint16_t address, uint8_t value)
   rb_ary_store(memArray, address, rbValue);
 }
 
+static VALUE set_hooks(VALUE self)
+{
+  has_hooks = 1;
+  return Qtrue;
+}
+
+static VALUE unset_hooks(VALUE self)
+{
+  has_hooks = 0;
+  return Qtrue;
+}
+
+static VALUE get_has_hooks(VALUE self)
+{
+  if (has_hooks) {
+    return Qtrue;
+  } else {
+    return Qfalse;
+  }
+}
+
+void execute_hooks() {
+  if (has_hooks) {
+    rb_funcall(mRuby6502, rb_intern("execute_hooks"), 0);
+  }
+}
+
 void Init_ruby6502()
 {
   mRuby6502 = rb_define_module("Ruby6502");
@@ -83,7 +111,14 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "_y_register", y_register, 0);
   rb_define_singleton_method(mRuby6502, "_status_flags", status_flags, 0);
   rb_define_singleton_method(mRuby6502, "instruction_count", instruction_count, 0);
+
+  rb_define_singleton_method(mRuby6502, "set_hooks", set_hooks, 0);
+  rb_define_singleton_method(mRuby6502, "unset_hooks", unset_hooks, 0);
+  rb_define_singleton_method(mRuby6502, "hooks?", get_has_hooks, 0);
+
   rb_define_singleton_method(mRuby6502, "reset", reset, 0);
   rb_define_singleton_method(mRuby6502, "step", step, 0);
   rb_define_singleton_method(mRuby6502, "exec", exec, 1);
+
+  hookexternal(execute_hooks);
 }

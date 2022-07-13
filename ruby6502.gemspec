@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path("../lib/ruby6502/version", __FILE__)
+require File.expand_path("lib/ruby6502/version", __dir__)
 
 Ruby6502::GEMSPEC = Gem::Specification.new do |s|
   s.name        = "ruby6502"
