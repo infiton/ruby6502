@@ -319,32 +319,52 @@ static void putvalue(uint16_t saveval) {
 
 
 //instruction handler functions
+
+// Original adc which does not handle BCD mode
+// static void adc() {
+//     penaltyop = 1;
+//     value = getvalue();
+//     result = (uint16_t)a + value + (uint16_t)(status & FLAG_CARRY);
+   
+//     carrycalc(result);
+//     zerocalc(result);
+//     overflowcalc(result, a, value);
+//     signcalc(result);
+    
+//     #ifndef NES_CPU
+//     if (status & FLAG_DECIMAL) {
+//         clearcarry();
+        
+//         if ((a & 0x0F) > 0x09) {
+//             a += 0x06;
+//         }
+//         if ((a & 0xF0) > 0x90) {
+//             a += 0x60;
+//             setcarry();
+//         }
+        
+//         clockticks6502++;
+//     }
+//     #endif
+   
+//     saveaccum(result);
+// }
+// from http://forum.6502.org/viewtopic.php?f=2&t=2052#p37758
 static void adc() {
     penaltyop = 1;
     value = getvalue();
     result = (uint16_t)a + value + (uint16_t)(status & FLAG_CARRY);
-   
-    carrycalc(result);
+
     zerocalc(result);
     overflowcalc(result, a, value);
     signcalc(result);
-    
+
     #ifndef NES_CPU
-    if (status & FLAG_DECIMAL) {
-        clearcarry();
-        
-        if ((a & 0x0F) > 0x09) {
-            a += 0x06;
-        }
-        if ((a & 0xF0) > 0x90) {
-            a += 0x60;
-            setcarry();
-        }
-        
-        clockticks6502++;
-    }
+    if (status & FLAG_DECIMAL)       /* detect and apply BCD nybble carries */
+        result += ((((result + 0x66) ^ (uint16_t)a ^ value) >> 3) & 0x22) * 3;
     #endif
-   
+
+    carrycalc(result);
     saveaccum(result);
 }
 
@@ -692,33 +712,58 @@ static void rts() {
     pc = value + 1;
 }
 
+// Original adc which does not handle BCD mode
+// static void sbc() {
+//     penaltyop = 1;
+//     value = getvalue() ^ 0x00FF;
+//     result = (uint16_t)a + value + (uint16_t)(status & FLAG_CARRY);
+   
+//     carrycalc(result);
+//     zerocalc(result);
+//     overflowcalc(result, a, value);
+//     signcalc(result);
+
+//     #ifndef NES_CPU
+//     if (status & FLAG_DECIMAL) {
+//         clearcarry();
+        
+//         a -= 0x66;
+//         if ((a & 0x0F) > 0x09) {
+//             a += 0x06;
+//         }
+//         if ((a & 0xF0) > 0x90) {
+//             a += 0x60;
+//             setcarry();
+//         }
+        
+//         clockticks6502++;
+//     }
+//     #endif
+   
+//     saveaccum(result);
+// }
+// from http://forum.6502.org/viewtopic.php?f=2&t=2052#p37758
 static void sbc() {
     penaltyop = 1;
-    value = getvalue() ^ 0x00FF;
+    value = getvalue() ^ 0x00FF;     /* ones complement */
+
+    #ifndef NES_CPU
+    if (status & FLAG_DECIMAL)       /* use nines complement for BCD */
+        value -= 0x0066;
+    #endif
+
     result = (uint16_t)a + value + (uint16_t)(status & FLAG_CARRY);
    
-    carrycalc(result);
     zerocalc(result);
     overflowcalc(result, a, value);
     signcalc(result);
 
     #ifndef NES_CPU
-    if (status & FLAG_DECIMAL) {
-        clearcarry();
-        
-        a -= 0x66;
-        if ((a & 0x0F) > 0x09) {
-            a += 0x06;
-        }
-        if ((a & 0xF0) > 0x90) {
-            a += 0x60;
-            setcarry();
-        }
-        
-        clockticks6502++;
-    }
+    if (status & FLAG_DECIMAL)       /* detect and apply BCD nybble carries */
+        result += ((((result + 0x66) ^ (uint16_t)a ^ value) >> 3) & 0x22) * 3;
     #endif
    
+    carrycalc(result);
     saveaccum(result);
 }
 
