@@ -960,10 +960,12 @@ void nmi6502() {
 }
 
 void irq6502() {
-    push16(pc);
-    push8(status);
-    status |= FLAG_INTERRUPT;
-    pc = (uint16_t)read6502(0xFFFE) | ((uint16_t)read6502(0xFFFF) << 8);
+    if (! (status & FLAG_INTERRUPT) ) {
+        push16(pc);
+        push8(status);
+        status |= FLAG_INTERRUPT;
+        pc = (uint16_t)read6502(0xFFFE) | ((uint16_t)read6502(0xFFFF) << 8);
+    }
 }
 
 uint8_t callexternal = 0;

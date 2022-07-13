@@ -46,6 +46,18 @@ static VALUE reset(VALUE self)
   return Qtrue;
 }
 
+static VALUE interrupt_request(VALUE self)
+{
+  irq6502();
+  return Qtrue;
+}
+
+static VALUE non_maskable_interrupt(VALUE self)
+{
+  nmi6502();
+  return Qtrue;
+}
+
 static VALUE step(VALUE self)
 {
   step6502();
@@ -117,6 +129,8 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "hooks?", get_has_hooks, 0);
 
   rb_define_singleton_method(mRuby6502, "reset", reset, 0);
+  rb_define_singleton_method(mRuby6502, "interrupt_request", interrupt_request, 0);
+  rb_define_singleton_method(mRuby6502, "non_maskable_interrupt", non_maskable_interrupt, 0);
   rb_define_singleton_method(mRuby6502, "step", step, 0);
   rb_define_singleton_method(mRuby6502, "exec", exec, 1);
 
