@@ -4,7 +4,8 @@ require "ruby6502/ruby6502"
 
 module Ruby6502
   MEMORY = [0] * 256 * 256
-  HOOKS = []
+  INSTRUCTION_HOOKS = []
+  READ_WRITE_HOOKS = {}
 
   def self.load(bytearray, location: 0)
     byte_size = bytearray.size
@@ -24,13 +25,44 @@ module Ruby6502
     MEMORY[location...location + bytes]
   end
 
-  def self.execute_hooks
-    HOOKS.each(&:call)
+  def self.execute_instruction_hooks
+    INSTRUCTION_HOOKS.each(&:call)
   end
 
-  def self.register_hook(&hook)
-    set_hooks unless hooks?
-    HOOKS << hook
+  def self.register_instruction_hook(&hook)
+    set_instruction_hooks unless instruction_hooks?
+    INSTRUCTION_HOOKS << hook
+  end
+
+  def self.execute_read_write_hook(location, read_or_write)
+    READ_WRITE_HOOKS[[location, read_or_write]]&.call(read_or_write)
+  end
+
+  def self.register_read_write_hook(location, read_or_write, &hook)
+    read_or_write = read_or_write.to_sym
+    unless [:read, :write, :read_write].include?(read_or_write)
+      raise "#{read_or_write} must be one of :read, :write, :read_write"
+    end
+
+    set_read_write_hooks unless read_write_hooks?
+
+    if read_or_write == :read_write
+      READ_WRITE_HOOKS[[location, :read]] = hook
+      READ_WRITE_HOOKS[[location, :write]] = hook
+    else
+      READ_WRITE_HOOKS[[location, read_or_write]] = hook
+    end
+  end
+
+  def self.deregister_read_write_hook(location, read_or_write)
+    if read_or_write == :read_write
+      READ_WRITE_HOOKS.delete([location, :read])
+      READ_WRITE_HOOKS.delete([location, :write])
+    else
+      READ_WRITE_HOOKS.delete([location, read_or_write])
+    end
+
+    unset_read_write_hooks if READ_WRITE_HOOKS.empty?
   end
 
   def self.program_counter
