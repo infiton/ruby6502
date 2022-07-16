@@ -6,6 +6,9 @@ static VALUE mRuby6502;
 uint8_t has_instruction_hooks = 0;
 uint8_t has_read_write_hooks = 0;
 
+#define MEMSIZE 0x10000
+uint8_t MEMORY[MEMSIZE] = {0};
+
 static VALUE program_counter(VALUE self)
 {
   return INT2NUM(getPC());
@@ -81,6 +84,18 @@ static VALUE exec(VALUE self, VALUE tickCount)
   return instruction_count(self);
 }
 
+static VALUE memory_size(VALUE self)
+{
+  return INT2NUM(MEMSIZE);
+}
+
+uint8_t read_address(uint16_t address)
+{
+  if ( address >= 0 && address < MEMSIZE ) {
+    return MEMORY[address];
+  } else return 0;
+}
+
 uint8_t read6502(uint16_t address)
 {
 
@@ -88,10 +103,23 @@ uint8_t read6502(uint16_t address)
     rb_funcall(mRuby6502, rb_intern("execute_read_write_hook"), 2, INT2NUM(address), ID2SYM(rb_intern("read")));
   }
 
-  VALUE memArray = rb_const_get(mRuby6502, rb_intern("MEMORY"));
-  VALUE memValue = rb_ary_entry(memArray, address);
+  return read_address(address);
+}
 
-  return (uint8_t) NUM2CHR(memValue);
+static VALUE read_byte(VALUE self, VALUE location)
+{
+  uint16_t address;
+
+  address = (uint16_t) NUM2INT(location);
+
+  return INT2NUM(read_address(address));
+}
+
+void write_address(uint16_t address, uint8_t value)
+{
+  if ( address >= 0 && address < MEMSIZE ) {
+    MEMORY[address] = value;
+  }
 }
 
 void write6502(uint16_t address, uint8_t value)
@@ -100,10 +128,20 @@ void write6502(uint16_t address, uint8_t value)
     rb_funcall(mRuby6502, rb_intern("execute_read_write_hook"), 2, INT2NUM(address), ID2SYM(rb_intern("write")));
   }
 
-  VALUE memArray = rb_const_get(mRuby6502, rb_intern("MEMORY"));
-  VALUE rbValue = INT2NUM(value);
+  write_address(address, value);
+}
 
-  rb_ary_store(memArray, address, rbValue);
+static VALUE load_byte(VALUE self, VALUE location, VALUE r_value)
+{
+  uint16_t address;
+  uint8_t value;
+
+  address = (uint16_t) NUM2INT(location);
+  value = (uint8_t) NUM2INT(r_value);
+
+  write_address(address, value);
+
+  return location;
 }
 
 static VALUE set_instruction_hooks(VALUE self)
@@ -157,6 +195,10 @@ void execute_instruction_hooks() {
 void Init_ruby6502()
 {
   mRuby6502 = rb_define_module("Ruby6502");
+  rb_define_singleton_method(mRuby6502, "memory_size", memory_size, 0);
+  rb_define_singleton_method(mRuby6502, "read_byte", read_byte, 1);
+  rb_define_singleton_method(mRuby6502, "load_byte", load_byte, 2);
+
   rb_define_singleton_method(mRuby6502, "_program_counter", program_counter, 0);
   rb_define_singleton_method(mRuby6502, "_stack_pointer", stack_pointer, 0);
   rb_define_singleton_method(mRuby6502, "_a_register", a_register, 0);

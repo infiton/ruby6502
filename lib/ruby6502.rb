@@ -3,26 +3,45 @@
 require "ruby6502/ruby6502"
 
 module Ruby6502
-  MEMORY = [0] * 256 * 256
   INSTRUCTION_HOOKS = []
   READ_WRITE_HOOKS = {}
 
   def self.load(bytearray, location: 0)
     byte_size = bytearray.size
-    if MEMORY.size < location + byte_size
+    location = location.to_i
+
+    if location < 0
+      raise "Cannot load to a negative memory location"
+    end
+
+    if memory_size < location + byte_size
       raise "Loading #{byte_size} bytes to #{format("%04x", location)} would overflow memory"
     end
 
     bytearray.each do |byte|
-      MEMORY[location] = byte
+      byte_to_load = byte.to_i & 0xff
+      load_byte(location, byte_to_load)
       location += 1
     end
   end
 
   def self.read(location:, bytes:)
-    raise "#{format("%04x", location)} is outside bounds" if location >= MEMORY.size
+    location = location.to_i
+    bytes = bytes.to_i
 
-    MEMORY[location...location + bytes]
+    unless location >=0 && location < memory_size
+      raise "#{location} is outside memory bounds"
+    end
+
+    unless bytes >= 0
+      raise "Must read a positive number of bytes"
+    end
+
+    raise "#{format("%04x", location + bytes)} is outside bounds" if location + bytes > memory_size
+
+    bytes.times.map do |byte|
+      read_byte(location + byte)
+    end
   end
 
   def self.execute_instruction_hooks
