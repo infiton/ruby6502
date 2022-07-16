@@ -199,12 +199,12 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "read_byte", read_byte, 1);
   rb_define_singleton_method(mRuby6502, "load_byte", load_byte, 2);
 
-  rb_define_singleton_method(mRuby6502, "_program_counter", program_counter, 0);
-  rb_define_singleton_method(mRuby6502, "_stack_pointer", stack_pointer, 0);
-  rb_define_singleton_method(mRuby6502, "_a_register", a_register, 0);
-  rb_define_singleton_method(mRuby6502, "_x_register", x_register, 0);
-  rb_define_singleton_method(mRuby6502, "_y_register", y_register, 0);
-  rb_define_singleton_method(mRuby6502, "_status_flags", status_flags, 0);
+  rb_define_singleton_method(mRuby6502, "program_counter", program_counter, 0);
+  rb_define_singleton_method(mRuby6502, "stack_pointer", stack_pointer, 0);
+  rb_define_singleton_method(mRuby6502, "a_register", a_register, 0);
+  rb_define_singleton_method(mRuby6502, "x_register", x_register, 0);
+  rb_define_singleton_method(mRuby6502, "y_register", y_register, 0);
+  rb_define_singleton_method(mRuby6502, "status_flags", status_flags, 0);
   rb_define_singleton_method(mRuby6502, "instruction_count", instruction_count, 0);
 
   rb_define_singleton_method(mRuby6502, "set_instruction_hooks", set_instruction_hooks, 0);
