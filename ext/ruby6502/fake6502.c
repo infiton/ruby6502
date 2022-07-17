@@ -1046,3 +1046,7 @@ uint8_t getStatus() {
 uint32_t getInstructions() {
     return instructions;
 }
+
+uint64_t getTicks() {
+    return clockticks6502;
+}

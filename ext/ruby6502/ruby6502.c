@@ -11,37 +11,42 @@ uint8_t MEMORY[MEMSIZE] = {0};
 
 static VALUE program_counter(VALUE self)
 {
-  return INT2NUM(getPC());
+  return UINT2NUM(getPC());
 }
 
 static VALUE stack_pointer(VALUE self)
 {
-  return INT2NUM(getSP());
+  return UINT2NUM(getSP());
 }
 
 static VALUE a_register(VALUE self)
 {
-  return INT2NUM(getA());
+  return UINT2NUM(getA());
 }
 
 static VALUE x_register(VALUE self)
 {
-  return INT2NUM(getX());
+  return UINT2NUM(getX());
 }
 
 static VALUE y_register(VALUE self)
 {
-  return INT2NUM(getY());
+  return UINT2NUM(getY());
 }
 
 static VALUE status_flags(VALUE self)
 {
-  return INT2NUM(getStatus());
+  return UINT2NUM(getStatus());
 }
 
 static VALUE instruction_count(VALUE self)
 {
-  return INT2NUM(getInstructions());
+  return ULONG2NUM(getInstructions());
+}
+
+static VALUE tick_count(VALUE self)
+{
+  return ULL2NUM(getTicks());
 }
 
 static VALUE reset(VALUE self)
@@ -80,13 +85,13 @@ static VALUE step_times(VALUE self, VALUE stepCount)
 
 static VALUE exec(VALUE self, VALUE tickCount)
 {
-  exec6502((uint32_t) NUM2INT(tickCount));
+  exec6502((uint32_t) NUM2ULONG(tickCount));
   return instruction_count(self);
 }
 
 static VALUE memory_size(VALUE self)
 {
-  return INT2NUM(MEMSIZE);
+  return UINT2NUM(MEMSIZE);
 }
 
 uint8_t read_address(uint16_t address)
@@ -100,7 +105,7 @@ uint8_t read6502(uint16_t address)
 {
 
   if ( has_read_write_hooks ) {
-    rb_funcall(mRuby6502, rb_intern("execute_read_write_hook"), 2, INT2NUM(address), ID2SYM(rb_intern("read")));
+    rb_funcall(mRuby6502, rb_intern("execute_read_write_hook"), 2, UINT2NUM(address), ID2SYM(rb_intern("read")));
   }
 
   return read_address(address);
@@ -110,9 +115,9 @@ static VALUE read_byte(VALUE self, VALUE location)
 {
   uint16_t address;
 
-  address = (uint16_t) NUM2INT(location);
+  address = (uint16_t) NUM2UINT(location);
 
-  return INT2NUM(read_address(address));
+  return UINT2NUM(read_address(address));
 }
 
 void write_address(uint16_t address, uint8_t value)
@@ -136,8 +141,8 @@ static VALUE load_byte(VALUE self, VALUE location, VALUE r_value)
   uint16_t address;
   uint8_t value;
 
-  address = (uint16_t) NUM2INT(location);
-  value = (uint8_t) NUM2INT(r_value);
+  address = (uint16_t) NUM2UINT(location);
+  value = (uint8_t) NUM2UINT(r_value);
 
   write_address(address, value);
 

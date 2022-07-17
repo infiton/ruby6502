@@ -15,5 +15,6 @@ uint8_t getX();
 uint8_t getY();
 uint8_t getStatus();
 uint32_t getInstructions();
+uint64_t getTicks();
 
 #endif
