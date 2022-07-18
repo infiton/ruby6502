@@ -211,6 +211,7 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "y_register", y_register, 0);
   rb_define_singleton_method(mRuby6502, "status_flags", status_flags, 0);
   rb_define_singleton_method(mRuby6502, "instruction_count", instruction_count, 0);
+  rb_define_singleton_method(mRuby6502, "tick_count", tick_count, 0);
 
   rb_define_singleton_method(mRuby6502, "set_instruction_hooks", set_instruction_hooks, 0);
   rb_define_singleton_method(mRuby6502, "unset_instruction_hooks", unset_instruction_hooks, 0);
