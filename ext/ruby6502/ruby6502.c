@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <time.h>
 #include <stdint.h>
 #include <ruby.h>
 #include "fake6502.h"
@@ -5,6 +7,8 @@
 static VALUE mRuby6502;
 uint8_t has_instruction_hooks = 0;
 uint8_t has_read_write_hooks = 0;
+
+uint16_t rng_hook_address = 0;
 
 #define MEMSIZE 0x10000
 uint8_t MEMORY[MEMSIZE] = {0};
@@ -94,7 +98,7 @@ static VALUE memory_size(VALUE self)
   return UINT2NUM(MEMSIZE);
 }
 
-uint8_t read_address(uint16_t address)
+static uint8_t read_address(uint16_t address)
 {
   if ( address >= 0 && address < MEMSIZE ) {
     return MEMORY[address];
@@ -120,7 +124,7 @@ static VALUE read_byte(VALUE self, VALUE location)
   return UINT2NUM(read_address(address));
 }
 
-void write_address(uint16_t address, uint8_t value)
+static void write_address(uint16_t address, uint8_t value)
 {
   if ( address >= 0 && address < MEMSIZE ) {
     MEMORY[address] = value;
@@ -163,7 +167,7 @@ static VALUE unset_instruction_hooks(VALUE self)
 
 static VALUE get_has_instruction_hooks(VALUE self)
 {
-  if (has_instruction_hooks) {
+  if ( has_instruction_hooks ) {
     return Qtrue;
   } else {
     return Qfalse;
@@ -184,15 +188,29 @@ static VALUE unset_read_write_hooks(VALUE self)
 
 static VALUE get_has_read_write_hooks(VALUE self)
 {
-  if (has_read_write_hooks) {
+  if ( has_read_write_hooks ) {
     return Qtrue;
   } else {
     return Qfalse;
   }
 }
 
+static VALUE configure_rng(VALUE self, VALUE location) {
+  uint16_t address;
+
+  address = (uint16_t) NUM2UINT(location);
+
+  if ( address > 0 && address < MEMSIZE ) {
+    rng_hook_address = address;
+  }
+}
+
 void execute_instruction_hooks() {
-  if (has_instruction_hooks) {
+  if ( rng_hook_address ) {
+    write_address(rng_hook_address, (uint8_t) rand());
+  }
+
+  if ( has_instruction_hooks ) {
     rb_funcall(mRuby6502, rb_intern("execute_instruction_hooks"), 0);
   }
 }
@@ -216,6 +234,7 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "set_instruction_hooks", set_instruction_hooks, 0);
   rb_define_singleton_method(mRuby6502, "unset_instruction_hooks", unset_instruction_hooks, 0);
   rb_define_singleton_method(mRuby6502, "instruction_hooks?", get_has_instruction_hooks, 0);
+  rb_define_singleton_method(mRuby6502, "configure_rng", configure_rng, 1);
 
   rb_define_singleton_method(mRuby6502, "set_read_write_hooks", set_read_write_hooks, 0);
   rb_define_singleton_method(mRuby6502, "unset_read_write_hooks", unset_read_write_hooks, 0);
@@ -229,4 +248,6 @@ void Init_ruby6502()
   rb_define_singleton_method(mRuby6502, "exec", exec, 1);
 
   hookexternal(execute_instruction_hooks);
+
+  srand ((unsigned int) time (NULL));
 }
