@@ -209,7 +209,10 @@ void reset6502() {
     x = 0;
     y = 0;
     sp = 0xFD;
-    status |= FLAG_CONSTANT;
+    status = FLAG_CONSTANT;
+    instructions = 0;
+    clockticks6502 = 0;
+    clockgoal6502 = 0;
 }
 
 
