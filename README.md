@@ -1,6 +1,6 @@
 # ruby6502
 
-`ruby6502` is a Ruby wrapper around Mike Chamber's [fake6502](http://rubbermallet.org/fake6502.c). The `fake6502.c` code has been altered slightly to i.e. [properly handle](http://forum.6502.org/viewtopic.php?f=2&t=2052#p37758) binary coded decimal, [allow for](https://github.com/infiton/ruby6502/commit/496f63acdc6b7183562ed5dc14efa2b070dd201b#diff-72c56ac3de6eea5d8a3c62b0df1a017df2e7959acd3f8ece338beab525f63698R963-R968) interrupt requests to be masked, and other easy of use changes. See 6502.org [tutorials](http://www.6502.org/tutorials/) to learn more.
+`ruby6502` is a Ruby wrapper around Mike Chambers' [fake6502](http://rubbermallet.org/fake6502.c). The `fake6502.c` code has been altered slightly to i.e. [properly handle](http://forum.6502.org/viewtopic.php?f=2&t=2052#p37758) binary coded decimal, [allow for](https://github.com/infiton/ruby6502/commit/496f63acdc6b7183562ed5dc14efa2b070dd201b#diff-72c56ac3de6eea5d8a3c62b0df1a017df2e7959acd3f8ece338beab525f63698R963-R968) interrupt requests to be masked, and other easy of use changes. See 6502.org [tutorials](http://www.6502.org/tutorials/) to learn more.
 
 ## Quick start
 
