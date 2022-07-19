@@ -18,6 +18,6 @@ Ruby6502::GEMSPEC = Gem::Specification.new do |s|
   s.add_development_dependency("rubocop", "~> 1.31")
   s.add_development_dependency("rubocop-shopify", "~> 2.8")
   s.extensions = ["ext/ruby6502/extconf.rb"]
-  s.homepage    = "http://github.com/infiton/ruby6502"
+  s.homepage    = "https://github.com/infiton/ruby6502"
   s.license     = "MIT"
 end
