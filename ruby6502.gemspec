@@ -11,7 +11,7 @@ Ruby6502::GEMSPEC = Gem::Specification.new do |s|
   s.email       = "kbt.tate@gmail.com"
   s.files       = Dir.glob("{lib}/**/*") + Dir.glob("{ext}/**/*")
 
-  s.required_ruby_version = ">= 2.6"
+  s.required_ruby_version = ">= 2.7"
   s.add_development_dependency("minitest", "~> 5.16")
   s.add_development_dependency("rake", "~> 13.0")
   s.add_development_dependency("rubocop", "~> 1.31")
