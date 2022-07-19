@@ -12,6 +12,10 @@ Ruby6502::GEMSPEC = Gem::Specification.new do |s|
   s.files       = Dir.glob("{lib}/**/*") + Dir.glob("{ext}/**/*")
 
   s.required_ruby_version = ">= 2.4"
+  s.add_development_dependency("minitest", "~> 5.16")
+  s.add_development_dependency("rake", "~> 13.0")
+  s.add_development_dependency("rubocop", "~> 1.31")
+  s.add_development_dependency("rubocop-shopify", "~> 2.8")
   s.extensions = ["ext/ruby6502/extconf.rb"]
   s.homepage    = "http://github.com/infiton/ruby6502"
   s.license     = "MIT"
